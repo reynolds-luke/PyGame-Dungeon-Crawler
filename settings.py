@@ -1,0 +1,9 @@
+# Game Screen
+TILE_SIZE = (100, 100)
+ROOM_DIM = 8
+SCREEN_DIM = TILE_SIZE[0] * ROOM_DIM
+# SCREEN_DIM = 700
+
+FPS = 60
+
+
