@@ -20,7 +20,7 @@ class Game:
 
         self.player = Player(pos=(0, 0), groups=[self.moving_sprites, self.foreground_sprites], obstacle_sprites=self.obstacle_sprites)
 
-        self.world = create_starting_room(dim=[5,5])
+        self.world = create_starting_room(dim=STARTING_ROOM_DIM)
         for pos in self.world.keys():
             pos_scaled = (TILE_DIM[0]*pos[0], TILE_DIM[1]*pos[1])
             groups = [self.background_tiles]
@@ -43,8 +43,8 @@ class Game:
 
             self.background_tiles.update()
             self.moving_sprites.update()
-
-            self.screen.fill((59, 65, 82))
+            # 00303B
+            self.screen.fill((0, 48, 59))
             self.background_tiles.custom_draw(self.player)
             self.foreground_sprites.custom_draw(self.player)
 

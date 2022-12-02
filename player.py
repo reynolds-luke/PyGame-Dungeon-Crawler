@@ -12,8 +12,8 @@ class Player(pygame.sprite.Sprite):
         self.pos = pos
         self.image = pygame.image.load("./graphics/player/down/down_0.png").convert_alpha()
         self.rect = self.image.get_rect(center=pos)
-        self.hitbox_scaling = (-16*2, -16*6)
-        self.hitbox = self.rect.inflate(-4*(100/16), 0)
+        self.hitbox_scaling = (-4*(TILE_DIM[0]/16), -8*(TILE_DIM[1]/16))
+        self.hitbox = self.rect.inflate(self.hitbox_scaling)
 
         self.direction = pygame.math.Vector2()
         self.speed = 10
