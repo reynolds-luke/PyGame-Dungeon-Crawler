@@ -5,9 +5,11 @@ from helpers import *
 
 # Define Player class
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, groups, obstacle_sprites):
+    def __init__(self, pos, groups, game):
         super().__init__(groups)
-        self.obstacle_sprites = obstacle_sprites
+        self.game = game
+        self.activation_sprites = self.game.activation_sprites
+        self.obstacle_sprites = self.game.obstacle_sprites
 
         self.pos = pos
         self.image = pygame.image.load("./graphics/player/down/down_0.png").convert_alpha()
@@ -16,7 +18,7 @@ class Player(pygame.sprite.Sprite):
         self.hitbox = self.rect.inflate(self.hitbox_scaling)
 
         self.direction = pygame.math.Vector2()
-        self.speed = 10
+        self.speed = TILE_DIM[0] / 7
 
         self.import_graphics()
         self.status = "down_idle"
@@ -99,6 +101,10 @@ class Player(pygame.sprite.Sprite):
                         self.hitbox.bottom = sprite.rect.top
                     else:
                         self.hitbox.top = sprite.rect.bottom
+
+        for sprite in self.activation_sprites:
+            if sprite.rect.colliderect(self.rect):
+                self.game.create_room()
 
     def update(self):
         self.inputs()

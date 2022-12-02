@@ -1,5 +1,5 @@
 # Game Screen
-TILE_DIM = (128, 128)
+TILE_DIM = (64, 64)
 SCREEN_DIM = (1080, 1920)
 FPS = 60
 
