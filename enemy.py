@@ -1,71 +1,61 @@
-import pygame
+import pygame, random
 from settings import *
 from helpers import *
 
 
 # Define Player class
-class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, groups, game):
+class Slime(pygame.sprite.Sprite):
+    def __init__(self, groups, game):
         super().__init__(groups)
         self.game = game
-        self.activation_sprites = self.game.activation_sprites
+        self.player = self.game.player
         self.obstacle_sprites = self.game.obstacle_sprites
-        self.pos = pos
-
-        self.animations = None
-        self.image = pygame.image.load("./graphics/player/down/down_0.png").convert_alpha()
-        self.rect = self.image.get_rect(center=pos)
+        self.pos = self.find_valid_spawn(self.game.world, self.game.player.pos)
+        self.image = pygame.image.load("./graphics/enemy/enemy_animation/enemy0.png").convert_alpha()
+        self.rect = self.image.get_rect(center=self.pos)
         self.hitbox_scaling = (-4*(TILE_DIM[0]/16), -8*(TILE_DIM[1]/16))
         self.hitbox = self.rect.inflate(self.hitbox_scaling)
 
         self.direction = pygame.math.Vector2()
-        self.speed = TILE_DIM[0] / 7
+        self.speed = TILE_DIM[0] / 14
 
         self.import_graphics()
-        self.status = "down_idle"
         self.frame_index = 0
         self.animation_speed = 0.15
 
+    def find_valid_spawn(self, world, player_pos):
+        possible_locations = [pos for pos in world if world[pos] == "new_floor" and (pos[0]-player_pos[0])**2+(pos[1]-player_pos[1])**2 >= MIN_DIST]
+        index = random.randint(1,len(possible_locations)-1)
+        return (possible_locations[index][0]*TILE_DIM[0], possible_locations[index][1]*TILE_DIM[1])
+
     def import_graphics(self):
-        player_path = "./graphics/player/"
-        self.animations = {"up": [], "down":[], "left":[], "right":[],
-                           "up_idle": [], "down_idle":[], "left_idle":[], "right_idle":[]}
+        enemy_path = "./graphics/enemy/"
+        self.animations = {"enemy_animation": []}
 
         for animation in self.animations.keys():
-            full_path = player_path + animation
+            full_path = enemy_path + animation
             self.animations[animation] = import_folder(full_path)
 
-    def get_status(self):
-        if self.direction.x == self.direction.y == 0:
-            if not "idle" in self.status:
-                self.status += "_idle"
-
-    def inputs(self):
-        keys = pygame.key.get_pressed()
-
-        if keys[pygame.K_UP] or keys[pygame.K_w]:
-            self.direction.y = -1
-            self.status = "up"
-        elif keys[pygame.K_DOWN] or keys[pygame.K_s]:
-            self.direction.y = 1
-            self.status = "down"
-        else:
-            self.direction.y = 0
-
-        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-            self.direction.x = -1
-            self.status = "left"
-        elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            self.direction.x = 1
-            self.status = "right"
-        else:
+    def calculate_motion(self):
+        if abs(self.rect.centerx - self.player.rect.centerx) < self.speed:
             self.direction.x = 0
+        elif self.rect.centerx < self.player.rect.centerx:
+            self.direction.x = 1
+        else:
+            self.direction.x = -1
+
+        if abs(self.rect.centery - self.player.rect.centery) < self.speed:
+            self.direction.y = 0
+        elif self.rect.centery < self.player.rect.centery:
+            self.direction.y = 1
+        else:
+            self.direction.y = -1
 
         if self.direction != (0,0):
             self.direction = self.direction.normalize()
 
     def animate(self):
-        animation = self.animations[self.status]
+        animation = self.animations["enemy_animation"]
 
         self.frame_index += self.animation_speed
 
@@ -85,7 +75,7 @@ class Player(pygame.sprite.Sprite):
         self.collision("vertical")
 
         self.rect.center = self.hitbox.center
-        self.pos = (self.rect.centerx // TILE_DIM[0], self.rect.centery // TILE_DIM[1])
+        self.pos = self.rect.center
 
     def collision(self, direction):
         if direction == 'horizontal':
@@ -104,12 +94,11 @@ class Player(pygame.sprite.Sprite):
                     else:
                         self.hitbox.top = sprite.rect.bottom
 
-        for sprite in self.activation_sprites:
-            if sprite.rect.colliderect(self.rect):
-                self.game.begin_attack()
+        if self.player.rect.colliderect(self.rect):
+            self.game.health_bar.decrease()
 
     def update(self):
-        self.inputs()
+        self.calculate_motion()
         self.move()
-        self.get_status()
+
         self.animate()
