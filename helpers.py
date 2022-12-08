@@ -37,7 +37,7 @@ def generate_room():
         return generate_circular_room()
 
 def generate_rectangular_room():
-    dim = [random.randint(5, 15), random.randint(5, 15)]
+    dim = [random.randint(10, 15), random.randint(10, 15)]
     room = dict()
     dim[0] += 2
     dim[1] +=2

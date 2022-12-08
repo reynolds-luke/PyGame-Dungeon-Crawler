@@ -2,6 +2,7 @@ import pygame, sys
 from player import *
 from room import *
 from helpers import *
+
 from enemy import *
 from stats import *
 from aimer import *
@@ -16,30 +17,36 @@ class Game:
         self.screen = pygame.display.set_mode((700, 700))
         self.clock = pygame.time.Clock()
 
+        pygame.mouse.set_visible(False)
         pygame.display.set_caption("Redstone")
 
-        self.moving_sprites = pygame.sprite.Group()
         self.foreground_sprites = CameraGroup()
-        self.tiles = CameraGroup()
-        self.obstacle_sprites = pygame.sprite.Group()
-        self.enemy_sprites = pygame.sprite.Group()
         self.activation_sprites = pygame.sprite.Group()
-        self.stats_sprites = pygame.sprite.Group()
+        self.tiles = CameraGroup()
+
+        self.player_obstacle_sprites = pygame.sprite.Group()
+        self.player_stats_sprites = pygame.sprite.Group()
+
+        self.enemy_sprites = pygame.sprite.Group()
+        self.enemy_obstacle_sprites = pygame.sprite.Group()
+        self.enemy_stats_sprites = CameraGroup()
+
 
         self.difficulty = 1
+        self.enemies_remaining = 0
 
-        self.health_bar = Health_Bar(groups=[self.stats_sprites], game=self)
-        self.stamina_bar = Stamina_Bar(groups=[self.stats_sprites], game=self)
+        self.health_bar = Player_Health_Bar(groups=[self.player_stats_sprites], game=self)
+        self.stamina_bar = Stamina_Bar(groups=[self.player_stats_sprites], game=self)
 
-        self.player = Player(pos=(0, 0), groups=[self.moving_sprites, self.foreground_sprites], game=self)
-        self.cross_hair = Crosshair(groups=[self.stats_sprites])
+        self.player = Player(pos=(0, 0), groups=[self.foreground_sprites], game=self)
+        self.cross_hair = Crosshair(groups=[self.player_stats_sprites], enemy_sprites=self.enemy_sprites, player=self.player, screen_dim = self.screen.get_size(), game = self)
 
         self.world = create_starting_room(dim=STARTING_ROOM_DIM)
         for pos in self.world.keys():
             pos_scaled = (TILE_DIM[0] * pos[0], TILE_DIM[1] * pos[1])
             groups = [self.tiles]
             if self.world[pos] == "wall":
-                groups.append(self.obstacle_sprites)
+                groups.append(self.player_obstacle_sprites)
                 groups.append(self.foreground_sprites)
 
             StaticTile(pos=pos, pos_scaled=pos_scaled, type=self.world[pos], groups=groups, world=self.world)
@@ -53,7 +60,8 @@ class Game:
 
             groups = [self.tiles]
             if self.world[pos] in OBSTACLE_TILES:
-                groups.append(self.obstacle_sprites)
+                groups.append(self.player_obstacle_sprites)
+                groups.append(self.enemy_obstacle_sprites)
                 groups.append(self.foreground_sprites)
             if self.world[pos] == "activation":
                 groups.append(self.activation_sprites)
@@ -61,6 +69,9 @@ class Game:
             StaticTile(pos=pos, pos_scaled=pos_scaled, type=self.world[pos], groups=groups, world=self.world)
 
     def create_room(self):
+        self.enemies_remaining = -1
+        self.difficulty += 2
+
         playerx = self.player.rect.centerx // TILE_DIM[0]
         playery = self.player.rect.centery // TILE_DIM[1]
         distance = 0
@@ -121,11 +132,14 @@ class Game:
         self.regenerate_tiles()
 
     def begin_attack(self):
+        self.enemies_remaining = 0
         world_update = {pos: "gate" for pos in self.world if self.world[pos] == "gate_deactive"}
         world_update.update({pos: "floor" for pos in self.world if self.world[pos] == "new_path"})
         world_update.update({pos: "new_floor" for pos in self.world if self.world[pos] == "activation"})
+
         for i in range(self.difficulty):
-            Slime(groups=[self.moving_sprites, self.foreground_sprites, self.enemy_sprites], game=self)
+            self.enemies_remaining += 1
+            Slime(groups=[self.foreground_sprites, self.enemy_obstacle_sprites, self.enemy_sprites], game=self)
         self.world.update(world_update)
         self.regenerate_tiles()
 
@@ -142,14 +156,23 @@ class Game:
                     if event.key == pygame.K_p:
                         self.create_room()
 
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    self.cross_hair.shoot()
+
+            if self.enemies_remaining == 0:
+                self.create_room()
+
             self.tiles.update()
-            self.moving_sprites.update()
-            self.stats_sprites.update()
+            self.foreground_sprites.update()
+            self.player_stats_sprites.update()
+            self.enemy_stats_sprites.update()
+
             # 00303B
             self.screen.fill((0, 48, 59))
             self.tiles.custom_draw(self.player)
             self.foreground_sprites.custom_draw(self.player)
-            self.stats_sprites.draw(self.screen)
+            self.enemy_stats_sprites.custom_draw(self.player)
+            self.player_stats_sprites.draw(self.screen)
 
             pygame.display.flip()
 

@@ -1,4 +1,4 @@
-import pygame
+import pygame, time
 from settings import *
 from helpers import *
 
@@ -9,8 +9,11 @@ class Player(pygame.sprite.Sprite):
         super().__init__(groups)
         self.game = game
         self.activation_sprites = self.game.activation_sprites
-        self.obstacle_sprites = self.game.obstacle_sprites
+        self.obstacle_sprites = self.game.player_obstacle_sprites
         self.pos = pos
+
+        self.last_hit_time = time.time()
+        self.has_been_attacked = False
 
         self.animations = None
         self.image = pygame.image.load("./graphics/player/down/down_0.png").convert_alpha()
@@ -64,6 +67,10 @@ class Player(pygame.sprite.Sprite):
         if self.direction != (0,0):
             self.direction = self.direction.normalize()
 
+    def hurt_player(self):
+        self.has_been_attacked = True
+        self.last_hit_time = time.time()
+
     def animate(self):
         animation = self.animations[self.status]
 
@@ -74,6 +81,9 @@ class Player(pygame.sprite.Sprite):
 
         self.image = animation[int(self.frame_index)]
         self.image = pygame.transform.scale(self.image, TILE_DIM)
+        if time.time()-self.last_hit_time <= 0.5 and self.has_been_attacked:
+            if 20*(time.time()-self.last_hit_time) % 2 <= 1:
+                self.image.fill((255, 100, 100), special_flags=pygame.BLEND_RGB_ADD)
         self.rect = self.image.get_rect(topleft=self.rect.topleft)
         self.hitbox = self.rect.inflate(self.hitbox_scaling)
 
