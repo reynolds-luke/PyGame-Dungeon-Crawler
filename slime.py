@@ -13,7 +13,7 @@ class Slime(Charector):
                          damage_cooldown=damage_cooldown, collision_groups=collision_groups,
                          spawn_immunity_time=ENEMY_TIME_BEFORE_ATTACK)
         self.player = self.game.player
-        self.hitbox.center = self.find_valid_spawn(self.game.world, self.player.rect.center)
+        self.hitbox.center = self.find_valid_spawn(self.game.world.map, self.player.rect.center)
         self.rect.center = self.hitbox.center
 
     def find_valid_spawn(self, world, player_pos):
