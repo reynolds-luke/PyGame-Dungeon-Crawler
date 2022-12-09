@@ -12,11 +12,15 @@ class StaticTile(pygame.sprite.Sprite):
         self.type = type
         self.world = world
 
-        tile_path = "./graphics/tiles/"
-        self.image = pygame.image.load(tile_path + self.type + ".png").convert_alpha()
+        self.tile_path = "./graphics/tiles/"
+        self.image = pygame.image.load(self.tile_path + self.type + ".png").convert_alpha()
         self.image = pygame.transform.scale(self.image, TILE_DIM)
-        self.rect = self.image.get_rect(topleft=self.pos_scaled)
+        self.rect = self.image.get_rect(center=self.pos_scaled)
 
     def update(self):
         if self.world[self.pos] != self.type:
-            self.kill()
+            self.type = self.world[self.pos]
+
+    def update_type(self):
+        self.image = pygame.image.load(self.tile_path + self.type + ".png").convert_alpha()
+        self.image = pygame.transform.scale(self.image, TILE_DIM)

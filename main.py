@@ -1,11 +1,12 @@
 import pygame, sys
 from player import *
+from slime import *
 from room import *
 from helpers import *
 
-from enemy import *
-from stats import *
-from aimer import *
+from health_bars import *
+from score import *
+from crosshair import *
 
 
 class Game:
@@ -15,53 +16,63 @@ class Game:
         pygame.init()
         #self.screen = pygame.display.set_mode(SCREEN_DIM, pygame.FULLSCREEN)
         self.screen = pygame.display.set_mode((700, 700))
+        self.real_screen_dim = pygame.display.get_surface().get_size()
         self.clock = pygame.time.Clock()
 
         pygame.mouse.set_visible(False)
-        pygame.display.set_caption("Redstone")
+        pygame.display.set_caption("The Dungeon")
 
-        self.foreground_sprites = CameraGroup()
-        self.activation_sprites = pygame.sprite.Group()
-        self.tiles = CameraGroup()
+        # Creating the sprite groups
+        self.foreground_sprites = CameraGroup() # Player, Enemies, Walls, etc.
+        self.background_sprites = CameraGroup() # Floor Tiles
+        self.activation_sprites = CameraGroup() # The activation tile in the center of each room
 
-        self.player_obstacle_sprites = pygame.sprite.Group()
-        self.player_stats_sprites = pygame.sprite.Group()
+        self.obstacle_sprites = pygame.sprite.Group() # Walls, Gates
 
-        self.enemy_sprites = pygame.sprite.Group()
-        self.enemy_obstacle_sprites = pygame.sprite.Group()
-        self.enemy_stats_sprites = CameraGroup()
+        self.enemy_sprites = pygame.sprite.Group() # Slimes, Dark Slimes, Eggs
 
+        self.camera_static_UI_sprites = pygame.sprite.Group() # UI elements that don't move with the player
+        self.camera_dynamic_UI_sprites = CameraGroup() # UI elements that move with the player
 
-        self.difficulty = 1
+        # Creating the sprites present from the start of the game
+        self.player = Player(game=self, groups=[self.foreground_sprites], animations_names=PLAYER_ANIMATION_NAMES,
+                             animation_speed=PLAYER_ANIMATION_SPEED, graphics_path=PLAYER_GRAPHICS_PATH,
+                             graphics_scaling=TILE_DIM, starting_graphic="./graphics/player/down/down_0.png",
+                             hitbox_scaling=(-4 * (TILE_DIM[0] / 16), -8 * (TILE_DIM[1] / 16)), pos=(0, 0),
+                             speed=PLAYER_WALK_SPEED, health=PLAYER_HEALTH, damage_cooldown=PLAYER_DAMAGE_COOLDOWN,
+                             collision_groups=[self.obstacle_sprites])
+
+        self.cross_hair = Crosshair(groups=[self.camera_static_UI_sprites], enemy_sprites=self.enemy_sprites,
+                                    player=self.player, screen_dim=self.screen.get_size(), game=self)
+
+        self.score_counter = ScoreCounter(game=self)
+
+        # Creating the start of the level
+        self.difficulty = 0
         self.enemies_remaining = 0
 
-        self.health_bar = Player_Health_Bar(groups=[self.player_stats_sprites], game=self)
-        self.stamina_bar = Stamina_Bar(groups=[self.player_stats_sprites], game=self)
+        self.world = create_starting_room(dim=STARTING_ROOM_DIM) # Of format (tile_x, tile_y): tile_type
+        self.generated_tiles = dict() # Of format (tile_x, tile-y): is_already_created
 
-        self.player = Player(pos=(0, 0), groups=[self.foreground_sprites], game=self)
-        self.cross_hair = Crosshair(groups=[self.player_stats_sprites], enemy_sprites=self.enemy_sprites, player=self.player, screen_dim = self.screen.get_size(), game = self)
-
-        self.world = create_starting_room(dim=STARTING_ROOM_DIM)
-        for pos in self.world.keys():
+        for pos in self.world.keys(): #
             pos_scaled = (TILE_DIM[0] * pos[0], TILE_DIM[1] * pos[1])
-            groups = [self.tiles]
+            groups = [self.background_sprites]
             if self.world[pos] == "wall":
-                groups.append(self.player_obstacle_sprites)
+                groups.append(self.obstacle_sprites)
                 groups.append(self.foreground_sprites)
 
             StaticTile(pos=pos, pos_scaled=pos_scaled, type=self.world[pos], groups=groups, world=self.world)
 
     def regenerate_tiles(self):
-        for sprite in iter(self.tiles):
+        for sprite in iter(self.background_sprites):
             sprite.kill()
 
         for pos in self.world.keys():
             pos_scaled = (TILE_DIM[0] * pos[0], TILE_DIM[1] * pos[1])
 
-            groups = [self.tiles]
+            groups = [self.background_sprites]
             if self.world[pos] in OBSTACLE_TILES:
-                groups.append(self.player_obstacle_sprites)
-                groups.append(self.enemy_obstacle_sprites)
+                groups.append(self.obstacle_sprites)
                 groups.append(self.foreground_sprites)
             if self.world[pos] == "activation":
                 groups.append(self.activation_sprites)
@@ -70,7 +81,7 @@ class Game:
 
     def create_room(self):
         self.enemies_remaining = -1
-        self.difficulty += 2
+        self.difficulty += 1
 
         playerx = self.player.rect.centerx // TILE_DIM[0]
         playery = self.player.rect.centery // TILE_DIM[1]
@@ -126,7 +137,8 @@ class Game:
         world_update.update({pos: "activation" for pos in new_room if new_room[pos] == "activation"})
 
         world_update.update(
-            {pos: "gate_deactive" for pos in new_room if new_room[pos] == "wall" and new_hallway.get(pos) == "new_path"})
+            {pos: "gate_deactive" for pos in new_room if
+             new_room[pos] == "wall" and new_hallway.get(pos) == "new_path"})
         self.world.update(world_update)
 
         self.regenerate_tiles()
@@ -139,7 +151,13 @@ class Game:
 
         for i in range(self.difficulty):
             self.enemies_remaining += 1
-            Slime(groups=[self.foreground_sprites, self.enemy_obstacle_sprites, self.enemy_sprites], game=self)
+            Slime(game=self, groups=[self.foreground_sprites, self.enemy_sprites],
+                  animations_names=SLIME_ANIMATION_NAMES, animation_speed=SLIME_ANIMATION_SPEED,
+                  graphics_path=SLIME_GRAPHICS_PATH, graphics_scaling=TILE_DIM,
+                  starting_graphic="./graphics/slime/slime_animation/enemy0.png",
+                  hitbox_scaling=(-4 * (TILE_DIM[0] / 16), -8 * (TILE_DIM[1] / 16)), pos=(0, 0),
+                  speed=SLIME_WALK_SPEED, health=SLIME_HEALTH, damage_cooldown=SLIME_DAMAGE_COOLDOWN,
+                  collision_groups=[self.obstacle_sprites, self.enemy_sprites])
         self.world.update(world_update)
         self.regenerate_tiles()
 
@@ -162,20 +180,21 @@ class Game:
             if self.enemies_remaining == 0:
                 self.create_room()
 
-            self.tiles.update()
+            self.background_sprites.update()
             self.foreground_sprites.update()
-            self.player_stats_sprites.update()
-            self.enemy_stats_sprites.update()
+            self.camera_dynamic_UI_sprites.update()
+            self.camera_static_UI_sprites.update()
 
             # 00303B
             self.screen.fill((0, 48, 59))
-            self.tiles.custom_draw(self.player)
+            self.background_sprites.custom_draw(self.player)
             self.foreground_sprites.custom_draw(self.player)
-            self.enemy_stats_sprites.custom_draw(self.player)
-            self.player_stats_sprites.draw(self.screen)
+            self.camera_dynamic_UI_sprites.custom_draw(self.player)
+
+            pygame.draw.rect(self.screen, (0, 48, 59), pygame.Rect(0, 0, self.real_screen_dim[0], 60))
+            self.camera_static_UI_sprites.draw(self.screen)
 
             pygame.display.flip()
-
             self.clock.tick(FPS)
 
     def game_over(self):

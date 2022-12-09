@@ -1,42 +1,15 @@
-import pygame, time
-from settings import *
-from helpers import *
+import pygame
+from character import *
 
-
-# Define Player class
-class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, groups, game):
-        super().__init__(groups)
-        self.game = game
-        self.activation_sprites = self.game.activation_sprites
-        self.obstacle_sprites = self.game.player_obstacle_sprites
-        self.pos = pos
-
-        self.last_hit_time = time.time()
-        self.has_been_attacked = False
-
-        self.animations = None
-        self.image = pygame.image.load("./graphics/player/down/down_0.png").convert_alpha()
-        self.rect = self.image.get_rect(center=pos)
-        self.hitbox_scaling = (-4*(TILE_DIM[0]/16), -8*(TILE_DIM[1]/16))
-        self.hitbox = self.rect.inflate(self.hitbox_scaling)
-
-        self.direction = pygame.math.Vector2()
-        self.speed = TILE_DIM[0] / 7
-
-        self.import_graphics()
-        self.status = "down_idle"
-        self.frame_index = 0
-        self.animation_speed = 0.15
-
-    def import_graphics(self):
-        player_path = "./graphics/player/"
-        self.animations = {"up": [], "down":[], "left":[], "right":[],
-                           "up_idle": [], "down_idle":[], "left_idle":[], "right_idle":[]}
-
-        for animation in self.animations.keys():
-            full_path = player_path + animation
-            self.animations[animation] = import_folder(full_path)
+class Player(Charector):
+    def __init__(self, game, groups, animations_names, animation_speed, graphics_path, graphics_scaling,
+                 starting_graphic, hitbox_scaling, pos, speed, health, damage_cooldown, collision_groups):
+        super().__init__(game = game, type="player", groups=groups, animations_names=animations_names,
+                         animation_speed=animation_speed, graphics_path=graphics_path,
+                         graphics_scaling=graphics_scaling, starting_graphic=starting_graphic, status="down_idle",
+                         hitbox_scaling=hitbox_scaling, pos=pos, speed=speed, health=health,
+                         damage_cooldown=damage_cooldown, collision_groups=collision_groups,
+                         spawn_immunity_time=PLAYER_SPAWN_IMMUNITY_TIME)
 
     def get_status(self):
         if self.direction.x == self.direction.y == 0:
@@ -67,59 +40,19 @@ class Player(pygame.sprite.Sprite):
         if self.direction != (0,0):
             self.direction = self.direction.normalize()
 
-    def hurt_player(self):
-        self.has_been_attacked = True
-        self.last_hit_time = time.time()
-
-    def animate(self):
-        animation = self.animations[self.status]
-
-        self.frame_index += self.animation_speed
-
-        if self.frame_index >= len(animation):
-            self.frame_index = 0
-
-        self.image = animation[int(self.frame_index)]
-        self.image = pygame.transform.scale(self.image, TILE_DIM)
-        if time.time()-self.last_hit_time <= 0.5 and self.has_been_attacked:
-            if 20*(time.time()-self.last_hit_time) % 2 <= 1:
-                self.image.fill((255, 100, 100), special_flags=pygame.BLEND_RGB_ADD)
-        self.rect = self.image.get_rect(topleft=self.rect.topleft)
-        self.hitbox = self.rect.inflate(self.hitbox_scaling)
-
-    def move(self):
-        self.hitbox.x += self.direction.x*self.speed
-        self.collision("horizontal")
-
-        self.hitbox.y += self.direction.y*self.speed
-        self.collision("vertical")
-
-        self.rect.center = self.hitbox.center
-        self.pos = (self.rect.centerx // TILE_DIM[0], self.rect.centery // TILE_DIM[1])
-
-    def collision(self, direction):
-        if direction == 'horizontal':
-            for sprite in self.obstacle_sprites:
-                if sprite.rect.colliderect(self.hitbox):
-                    if self.direction.x > 0:
-                        self.hitbox.right = sprite.rect.left
-                    else:
-                        self.hitbox.left = sprite.rect.right
-
-        if direction == 'vertical':
-            for sprite in self.obstacle_sprites:
-                if sprite.rect.colliderect(self.hitbox):
-                    if self.direction.y > 0:
-                        self.hitbox.bottom = sprite.rect.top
-                    else:
-                        self.hitbox.top = sprite.rect.bottom
-
-        for sprite in self.activation_sprites:
+    def check_for_activation(self):
+        for sprite in self.game.activation_sprites:
             if sprite.rect.colliderect(self.rect):
                 self.game.begin_attack()
+
+    def check_if_dead(self):
+        if self.is_dead:
+            self.game.game_over()
 
     def update(self):
         self.inputs()
         self.move()
+        self.check_for_activation()
+        self.check_if_dead()
         self.get_status()
         self.animate()
