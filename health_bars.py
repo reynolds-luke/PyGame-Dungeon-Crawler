@@ -15,10 +15,13 @@ class HealthCounter(pygame.sprite.Sprite):
 
         if type == "slime":
             self.health_bar = EnemyHealthBar(game=self.game, counter=self, enemy=self.charector,
-                                             graphics_scaling=ENEMY_STATS_BAR_DIM)
+                                             graphics_scaling=ENEMY_STATS_BAR_DIM, offset=pygame.math.Vector2(0, 40))
+        if type == "dark_slime":
+            self.health_bar = EnemyHealthBar(game=self.game, counter=self, enemy=self.charector,
+                                             graphics_scaling=ENEMY_STATS_BAR_DIM, offset=pygame.math.Vector2(0, 80))
 
-    def decrease_health(self):
-        self.health_bar.decrease()
+    def decrease_health(self, damage):
+        self.health_bar.decrease(damage)
 
     def kill_charector(self):
         self.charector.is_dead = True
@@ -35,14 +38,14 @@ class HealthBar(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image, self.graphics_scaling)
         self.rect = self.image.get_rect(topleft=(SPACING, SPACING))
 
-    def decrease(self):
-        self.frame_index += 1
+    def decrease(self, damage):
+        self.frame_index += damage
 
         self.image = self.animation[self.frame_index]
         self.image = pygame.transform.scale(self.image, self.graphics_scaling)
         self.rect = self.image.get_rect(topleft=self.rect.topleft)
 
-        if self.frame_index == len(self.animation) - 1:
+        if self.frame_index >= len(self.animation) - 1:
             self.counter.kill_charector()
 
 
@@ -55,16 +58,17 @@ class PlayerHealthBar(HealthBar):
 
 
 class EnemyHealthBar(HealthBar):
-    def __init__(self, game, counter, enemy, graphics_scaling):
+    def __init__(self, game, counter, enemy, graphics_scaling, offset):
         self.game = game
         groups = [self.game.camera_dynamic_UI_sprites]
         super().__init__(groups=groups, counter=counter, graphics_scaling=graphics_scaling)
+        self.offset = offset
         self.enemy = enemy
 
     def update(self):
-        if time.time()-self.enemy.time_of_creation < ENEMY_TIME_BEFORE_ATTACK:
-            self.frame_index = int(4-4*((time.time()-self.enemy.time_of_creation) / ENEMY_TIME_BEFORE_ATTACK))
+        if time.time()-self.enemy.time_of_creation < self.enemy.time_before_attack:
+            self.frame_index = int(4-4*((time.time()-self.enemy.time_of_creation) / self.enemy.time_before_attack))
             self.image = self.animation[self.frame_index]
             self.image = pygame.transform.scale(self.image, ENEMY_STATS_BAR_DIM)
             self.rect = self.image.get_rect(topleft=self.rect.topleft)
-        self.rect.center = self.enemy.rect.center + pygame.math.Vector2(0, 40)
+        self.rect.center = self.enemy.rect.center + self.offset

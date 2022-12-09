@@ -11,9 +11,11 @@ class Crosshair(pygame.sprite.Sprite):
         self.attack_sound.set_volume(0.2)
 
         self.image = pygame.image.load("./graphics/aim/aim.png")
-        self.image = pygame.transform.scale(self.image, CROSS_HAIR_DIM)
+        self.graphics_dim = CROSS_HAIR_DIM
+        self.image = pygame.transform.scale(self.image, self.graphics_dim)
         self.rect = self.image.get_rect()
         self.adjusted_rect = self.rect
+        self.strength = 1
 
         self.enemy_sprites = enemy_sprites
 
@@ -23,9 +25,12 @@ class Crosshair(pygame.sprite.Sprite):
         # self.attack_sound.play()
         for sprite in self.enemy_sprites:
             if sprite.rect.colliderect(self.adjusted_rect):
-                sprite.take_damage()
+                sprite.take_damage(self.strength)
 
     def update(self):
+        #print(self.graphics_dim)
+        self.image = pygame.transform.scale(self.image, self.graphics_dim)
+        self.rect = self.image.get_rect()
         self.rect.center = pygame.mouse.get_pos()
         self.adjusted_rect = self.rect.copy()
         self.adjusted_rect.centerx += self.player.rect.centerx-self.half_width

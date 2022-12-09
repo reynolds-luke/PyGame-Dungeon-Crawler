@@ -1,18 +1,24 @@
 import pygame
 from settings import *
 from character import *
+from slime import *
 
 
-class Slime(Charector):
+class DarkSlime(Charector):
     def __init__(self, game, groups, pos, collision_groups, time_before_attack):
-        super().__init__(game = game, type="slime", groups=groups, animations_names=SLIME_ANIMATION_NAMES,
-                         animation_speed=SLIME_ANIMATION_SPEED, graphics_path=SLIME_GRAPHICS_PATH,
-                         graphics_scaling=TILE_DIM, starting_graphic="./graphics/slime/slime_animation/enemy0.png",
-                         status="slime_animation", hitbox_scaling=(-4 * (TILE_DIM[0] / 16), -8 * (TILE_DIM[1] / 16)),
-                         pos=pos, speed=SLIME_WALK_SPEED, health=SLIME_HEALTH, damage_cooldown=SLIME_DAMAGE_COOLDOWN,
-                         collision_groups=collision_groups, spawn_immunity_time=time_before_attack)
+        super().__init__(game = game, type="dark_slime", groups=groups, animations_names=DARK_SLIME_ANIMATION_NAMES,
+                         animation_speed=DARK_SLIME_ANIMATION_SPEED, graphics_path=DARK_SLIME_GRAPHICS_PATH,
+                         graphics_scaling=(2*TILE_DIM[0], 2*TILE_DIM[1]),
+                         starting_graphic="./graphics/dark_slime/dark_slime_animation/sprite_0.png",
+                         status="dark_slime_animation",
+                         hitbox_scaling=(-4 * (TILE_DIM[0] / 16), -8 * (TILE_DIM[1] / 16)), pos=pos,
+                         speed=DARK_SLIME_WALK_SPEED, health=DARK_SLIME_HEALTH,
+                         damage_cooldown=DARK_SLIME_DAMAGE_COOLDOWN, collision_groups=collision_groups,
+                         spawn_immunity_time=time_before_attack)
+        self.groups = groups
+        self.collision_groups = collision_groups
         self.player = self.game.player
-        self.time_before_attack = time_before_attack
+        self.time_before_attack=time_before_attack
         self.hitbox.center = pos
         self.rect.center = self.hitbox.center
         self.move()
@@ -37,12 +43,16 @@ class Slime(Charector):
 
     def check_player_collision(self):
         if self.player.rect.colliderect(self.hitbox):
-            self.player.take_damage(1)
+            self.player.take_damage(2)
 
     def check_if_dead(self):
         if self.is_dead:
-            self.game.score_counter.add_to_score(100)
+            self.game.score_counter.add_to_score(300)
             self.game.enemies_remaining -= 1
+            for i in range(3):
+                self.game.enemies_remaining += 1
+                Slime(game=self.game, groups=self.groups, pos=self.rect.center,
+                      collision_groups=self.collision_groups, time_before_attack=1)
             self.health_counter.health_bar.kill()
             self.health_counter.kill()
             self.kill()

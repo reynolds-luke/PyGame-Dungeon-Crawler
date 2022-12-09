@@ -2,14 +2,13 @@ import pygame
 from character import *
 
 class Player(Charector):
-    def __init__(self, game, groups, animations_names, animation_speed, graphics_path, graphics_scaling,
-                 starting_graphic, hitbox_scaling, pos, speed, health, damage_cooldown, collision_groups):
-        super().__init__(game = game, type="player", groups=groups, animations_names=animations_names,
-                         animation_speed=animation_speed, graphics_path=graphics_path,
-                         graphics_scaling=graphics_scaling, starting_graphic=starting_graphic, status="down_idle",
-                         hitbox_scaling=hitbox_scaling, pos=pos, speed=speed, health=health,
-                         damage_cooldown=damage_cooldown, collision_groups=collision_groups,
-                         spawn_immunity_time=PLAYER_SPAWN_IMMUNITY_TIME)
+    def __init__(self, game, groups, pos, collision_groups):
+        super().__init__(game = game, type="player", groups=groups, animations_names=PLAYER_ANIMATION_NAMES,
+                         animation_speed=PLAYER_ANIMATION_SPEED, graphics_path=PLAYER_GRAPHICS_PATH,
+                         graphics_scaling=TILE_DIM, starting_graphic="./graphics/player/down/down_0.png",
+                         status="down_idle", hitbox_scaling=(-4 * (TILE_DIM[0] / 16), -8 * (TILE_DIM[1] / 16)),
+                         pos=pos, speed=PLAYER_WALK_SPEED, health=PLAYER_HEALTH, damage_cooldown=PLAYER_DAMAGE_COOLDOWN,
+                         collision_groups=collision_groups,spawn_immunity_time=PLAYER_SPAWN_IMMUNITY_TIME)
 
     def get_status(self):
         if self.direction.x == self.direction.y == 0:
@@ -47,7 +46,7 @@ class Player(Charector):
 
     def check_if_dead(self):
         if self.is_dead:
-            self.game.game_over()
+            self.game.alive = False
 
     def update(self):
         self.inputs()

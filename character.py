@@ -59,13 +59,13 @@ class Charector(pygame.sprite.Sprite):
             if 20 * (time.time() - self.last_hit_time) % 2 <= 1:
                 self.image.fill((255, 100, 100), special_flags=pygame.BLEND_RGB_ADD)
 
-    def take_damage(self):
+    def take_damage(self, damage):
         self.has_been_attacked = True
         if time.time()-self.last_hit_time >= self.damage_cooldown:
             if time.time()-self.time_of_creation >= self.spawn_immunity_time:
                 # self.hurt_sound.play()
                 self.last_hit_time = time.time()
-                self.health_counter.decrease_health()
+                self.health_counter.decrease_health(damage)
 
     def move(self):
         self.hitbox.x += self.direction.x * self.speed
@@ -81,7 +81,7 @@ class Charector(pygame.sprite.Sprite):
     def collision(self, direction, group):
         if direction == 'horizontal':
             for sprite in group:
-                if sprite.rect.center == self.rect.center:
+                if sprite == self:
                     pass
                 elif sprite.rect.colliderect(self.hitbox):
                     if self.direction.x > 0:
@@ -91,7 +91,7 @@ class Charector(pygame.sprite.Sprite):
 
         if direction == "vertical":
             for sprite in group:
-                if sprite.rect.center == self.rect.center:
+                if sprite == self:
                     pass
                 elif sprite.rect.colliderect(self.hitbox):
                     if self.direction.y > 0:

@@ -13,6 +13,7 @@ ENEMY_STATS_BAR_SIZE = 20
 ENEMY_STATS_BAR_DIM = (ENEMY_STATS_BAR_SIZE * STATS_BAR_RATIO[0], ENEMY_STATS_BAR_SIZE * STATS_BAR_RATIO[1])
 
 CROSS_HAIR_DIM = (50, 50)
+CROSS_HAIR_ENLARGED_DIM = (100, 100)
 
 SCORE_DIGIT_RATIO = [24, 42]
 SCORE_DIGITS_SIZE = 1
@@ -36,7 +37,27 @@ SLIME_WALK_SPEED = 0.7 * PLAYER_WALK_SPEED
 SLIME_HEALTH = 4
 SLIME_DAMAGE_COOLDOWN = 1
 
-ENEMY_TIME_BEFORE_ATTACK = 3
+# Dark Slime Settings
+DARK_SLIME_ANIMATION_NAMES = ["dark_slime_animation"]
+DARK_SLIME_GRAPHICS_PATH = "./graphics/dark_slime/"
+DARK_SLIME_ANIMATION_SPEED = 0.3 * SLIME_ANIMATION_SPEED
+DARK_SLIME_WALK_SPEED = 0.3 * SLIME_WALK_SPEED
+DARK_SLIME_HEALTH = 4
+DARK_SLIME_DAMAGE_COOLDOWN = 1
+
+# Enemy Settings
+WAVES = [ {"slime_count": 1, "dark_slime_count":0, "egg_count":0},
+          {"slime_count": 0, "dark_slime_count":1, "egg_count":0},
+          {"slime_count": 2, "dark_slime_count":1, "egg_count":0},
+          {"slime_count": 3, "dark_slime_count":2, "egg_count":0},
+          {"slime_count": 10, "dark_slime_count":5, "egg_count":0},
+          {"slime_count": 5, "dark_slime_count":3, "egg_count":2},
+          {"slime_count": 10, "dark_slime_count":5, "egg_count":5},]
+
+
+# Potion Settings
+POTION_GRAPHICS_PATH = "./graphics/potions/"
+POTION_TYPES = ["double_damage", "larger_crosshair", "speed"]
 
 
 # Room Settings

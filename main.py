@@ -1,8 +1,12 @@
-import pygame, sys
+import pygame, sys, csv
+from helpers import *
+
+from world import *
+
 from player import *
 from slime import *
-from world import *
-from helpers import *
+from dark_slime import *
+from potion import *
 
 from health_bars import *
 from score import *
@@ -14,8 +18,11 @@ class Game:
 
         # Initialize Pygame
         pygame.init()
+        pygame.font.init()
+        self.my_font = pygame.font.SysFont('Algerian', 50)
         #self.screen = pygame.display.set_mode(SCREEN_DIM, pygame.FULLSCREEN)
         self.screen = pygame.display.set_mode((700, 700))
+
         self.real_screen_dim = pygame.display.get_surface().get_size()
         self.clock = pygame.time.Clock()
 
@@ -35,11 +42,7 @@ class Game:
         self.camera_dynamic_UI_sprites = CameraGroup() # UI elements that move with the player
 
         # Creating the sprites present from the start of the game
-        self.player = Player(game=self, groups=[self.foreground_sprites], animations_names=PLAYER_ANIMATION_NAMES,
-                             animation_speed=PLAYER_ANIMATION_SPEED, graphics_path=PLAYER_GRAPHICS_PATH,
-                             graphics_scaling=TILE_DIM, starting_graphic="./graphics/player/down/down_0.png",
-                             hitbox_scaling=(-4 * (TILE_DIM[0] / 16), -8 * (TILE_DIM[1] / 16)), pos=(0, 0),
-                             speed=PLAYER_WALK_SPEED, health=PLAYER_HEALTH, damage_cooldown=PLAYER_DAMAGE_COOLDOWN,
+        self.player = Player(game=self, groups=[self.foreground_sprites], pos = (0,0),
                              collision_groups=[self.obstacle_sprites])
 
         self.cross_hair = Crosshair(groups=[self.camera_static_UI_sprites], enemy_sprites=self.enemy_sprites,
@@ -48,23 +51,25 @@ class Game:
         self.score_counter = ScoreCounter(game=self)
 
         # Creating the start of the level
-        self.difficulty = 0
-        self.enemies_remaining = 0
+        self.alive = True
         self.world = World(game=self)
+        self.difficulty = 0
+        self.enemies_remaining = -1
+        self.world.create_room()
 
     def begin_attack(self):
         self.world.begin_attack()
-        print("BEGIN ATTACK")
+        print("BEGIN ATTACK", self.difficulty)
         self.enemies_remaining = 0
-        for i in range(10):
+        for i in range(WAVES[self.difficulty]["slime_count"]):
             self.enemies_remaining += 1
-            Slime(game=self, groups=[self.foreground_sprites, self.enemy_sprites],
-                  animations_names=SLIME_ANIMATION_NAMES, animation_speed=SLIME_ANIMATION_SPEED,
-                  graphics_path=SLIME_GRAPHICS_PATH, graphics_scaling=TILE_DIM,
-                  starting_graphic="./graphics/slime/slime_animation/enemy0.png",
-                  hitbox_scaling=(-4 * (TILE_DIM[0] / 16), -8 * (TILE_DIM[1] / 16)), pos=(0, 0),
-                  speed=SLIME_WALK_SPEED, health=SLIME_HEALTH, damage_cooldown=SLIME_DAMAGE_COOLDOWN,
-                  collision_groups=[self.obstacle_sprites, self.enemy_sprites])
+            Slime(game=self, groups=[self.foreground_sprites, self.enemy_sprites], pos=self.player.rect.center,
+                  collision_groups=[self.obstacle_sprites, self.enemy_sprites], time_before_attack=3)
+        for i in range(WAVES[self.difficulty]["dark_slime_count"]):
+            self.enemies_remaining += 1
+            DarkSlime(game=self, groups=[self.foreground_sprites, self.enemy_sprites], pos=self.player.rect.center,
+                      collision_groups=[self.obstacle_sprites, self.enemy_sprites], time_before_attack=3)
+        self.difficulty += 1
 
     def run(self):
         while True:
@@ -77,19 +82,30 @@ class Game:
                         pygame.quit()
                         sys.exit()
                     if event.key == pygame.K_p:
-                        self.world.create_room()
+                        Potion(groups=[self.foreground_sprites], map=self.world.map, player=self.player, cross_hair=self.cross_hair)
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     self.cross_hair.shoot()
 
             if self.enemies_remaining == 0:
-                self.world.create_room()
+                self.enemies_remaining = -1
+                create_potion = random.randint(1,3)
+                if create_potion == 1:
+                    Potion(groups=[self.foreground_sprites], world=self.world, player=self.player,
+                           cross_hair=self.cross_hair)
+                else:
+                    self.world.create_room()
 
-            self.draw_screen()
+            if False:
+                self.draw_game_screen()
+            else:
+                self.get_name()
+                self.draw_leaderboard_screen()
+
             pygame.display.flip()
             self.clock.tick(FPS)
 
-    def draw_screen(self):
+    def draw_game_screen(self):
         self.background_sprites.update()
         self.foreground_sprites.update()
         self.camera_dynamic_UI_sprites.update()
@@ -103,8 +119,61 @@ class Game:
         pygame.draw.rect(self.screen, BACKGROUND_COLOR, pygame.Rect(0, 0, self.real_screen_dim[0], 60))
         self.camera_static_UI_sprites.draw(self.screen)
 
-    def game_over(self):
-        print("game over!!!")
+    def draw_leaderboard_screen(self):
+        leaderboard_file_name = "leaderboard.csv"
+        self.screen.fill(BACKGROUND_COLOR)
+        entries = []
+        with open(leaderboard_file_name, 'r') as csvfile:
+            csvreader = csv.reader(csvfile)
+
+            for row in csvreader:
+                entries.append(row)
+        entries = entries[1:]
+        entries.sort(key=(lambda row: int(row[1])), reverse=True)
+        displayed_entries = entries[: 10]
+
+        print(entries)
+
+        text_surface = self.my_font.render('LEADERBOARD', True, (255, 255, 255))
+        self.screen.blit(text_surface, (SPACING,SPACING))
+        height = 50
+        for idx in range(len(displayed_entries)):
+            height += 50
+            row = displayed_entries[idx]
+            text_surface = self.my_font.render(f'{idx+1}. {row[0]}:-----------{row[1]}', True, (255, 255, 255))
+            self.screen.blit(text_surface, (SPACING, height))
+
+
+
+    def get_name(self):
+        self.screen.fill(BACKGROUND_COLOR)
+        pygame.display.flip()
+        name = ""
+        font = pygame.font.Font(None, 50)
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        pygame.quit()
+                        sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.unicode.isalnum() or event.unicode.isspace():
+                        if len(name) <= 10:
+                            name += event.unicode
+                    elif event.key == pygame.K_BACKSPACE:
+                        name = name[:-1]
+                    elif event.key == pygame.K_RETURN:
+                        return
+                self.screen.fill(BACKGROUND_COLOR)
+                block = font.render(name, True, (255, 255, 255))
+                rect = block.get_rect()
+                rect.center = self.screen.get_rect().center
+                self.screen.blit(block, rect)
+                pygame.display.flip()
+
 
 
 class CameraGroup(pygame.sprite.Group):

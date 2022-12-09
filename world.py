@@ -19,9 +19,6 @@ class World:
             sprite.refresh_tile()
 
     def create_room(self):
-        self.game.enemies_remaining = -1
-        self.game.difficulty += 1
-
         playerx = self.game.player.rect.centerx // TILE_DIM[0]
         playery = self.game.player.rect.centery // TILE_DIM[1]
         distance = 0
@@ -44,13 +41,15 @@ class World:
         new_room = {(posx + playerx, posy + playery): new_room[(posx, posy)] for posx, posy in new_room}
         new_hallway = dict()
         d = 0
+        new_hallway[(playerx + d * direction.x, playery + d * direction.y)] = "new_path"
+        new_hallway[(playerx + d * direction.x + direction.y, playery + direction.x + d * direction.y)] = "wall"
+        new_hallway[(playerx + d * direction.x - direction.y, playery + d * direction.y - direction.x)] = "wall"
 
         while 0 != len([coordinate for coordinate in self.map.keys() if coordinate in new_room.keys()]):
             d += 1
             new_hallway[(playerx + d * direction.x, playery + d * direction.y)] = "new_path"
             new_hallway[(playerx + d * direction.x + direction.y, playery + direction.x + d * direction.y)] = "wall"
             new_hallway[(playerx + d * direction.x - direction.y, playery + d * direction.y - direction.x)] = "wall"
-
             new_room = {(posx + direction.x, posy + direction.y): new_room[(posx, posy)] for posx, posy in new_room}
 
         extra_hallway_length = 3 * random.randint(2, 5)
