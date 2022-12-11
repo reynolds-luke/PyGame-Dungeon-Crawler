@@ -36,7 +36,7 @@ Other, less important notes on new room generation:
 - To make it clear which direction the new room was in, I created a different colored floor (called "new_floor" for tiles in the new room and "new_path" for tiles in the created path) to point the way. Note that when the attack begins, the "new_path" tiles return to the normal floor color whereas the room stays in the new color, which is why it was necessary to have two different types for what were almost the same type of tile.
 - At the center of each room, I added an "activation tile" that triggers the new attack when the player walks into it. This prevents the enemies from spawning until after the player is ready and in the new room.
 
-## Camera
+## Camera (main.py)
 Another major challenge was dealing with the camera. I wanted the camera to always focus on the player, so the location in which I drew the background tiles and the enemies depended on the player's location. However, other objects, such as the player health bar and crosshair, should not move when the player moves. This required me to use two coordinate different coordinate systems in different contexts.
 
 Some objects, such as the crosshair, needed to know its coordinates as well as it's player-adjusted coordinates. It needed to know its screen coordinates so that it drew on the correct part of the screen, and it needed to know its player-adjusted coordinates that it knew when it hit an collided with an enemy (which used player-adjusted coordinates).
@@ -51,7 +51,7 @@ In pygame, things appear "on top of" or "behind" one another depending on the or
 5. Draws a rectangle at the top of the screen in the background, as a backdrop for the other UI elements
 6. Draws UI elements that don't follow the player (such as the player health bar, the score, and the crosshair)
 
-## Characters 
+## Characters (character.py, player.py, slime.py, dark_slime.py)
 All characters in the game (the player, as well as the enemy characters such as the slime and dark slime) inherit methods/attributes from the "character class," which contains all the basic functionality they have in common. I seperated out the common attribute/methods into this class so that I didn't have to write the same code twice. It also made it much easier to add/change methods that relating to all of the different types of characters.
 
 The character class includes attributes/methods relevant to all characters, such as the method that checks moves the sprite and checks for collisions, the method that animates the sprite to their next animation frame graphic, and the method for taking some given amount of damage. Each object of the character class also creates a "health counter" object (see below).
@@ -60,7 +60,7 @@ The player class inherits all these methods, and adds on additional methods, suc
 
 The Slime and Dark slime classes are very similar, and it would even have been possible to put them into the same "GenericSlime" class. However, I decided not to do this because if I were to develop the game further, I would have added more differences to how the two types of enemies behave (especially in their movement patterns). At present, both classes inherit all the charecter methods and have some new enemy-specific methods such as updating its direction of movement to move toward the player, and checking to see if the enemy is touching the player's hitbox. Also of interest is the fact that the enemies collide with themselves, which I accomplished by adding the enemies to their own collision group. Then the existing collision methods in the character class did the work for me!
 
-## Health Counters and Health Bars
+## Health Counters and Health Bars (health_bars.py)
 Every character has a certain amount of health, but I wanted different types of characters to have different types of health bars. Specifically, I wanted the player's health bar to be placed in the top left and the enemy's health bar to be placed directly under the enemy itself. To solve this, I created two types of classes: a single HealthCounter class, which all character's have, HealthBar class. Each HealthCounter object has either a PlayerHealthBar or an EnemyHealthBar, depending on the type of character. I could have instead added a conditional in the Character class itself, but having this intermediate felt much more natural to me.
 
 The HealthCounter class just creates either a PlayerHealthBar or an EnemyHealthBar object, depending on the type of character. It has two methods; one that relays information about the health of the character going down to the health bar, and one that relays if the HealthBar reached its last frame of the animation (i.e. the character died) to the character itself.
@@ -71,20 +71,20 @@ The PlayerHealthBar class places a scaled up version of the health bar graphic i
 
 The EnemyHealthBar class places a smaller version of the health bar graphic directly under its enemy. Upon the enemy's spawn, there is a brief animation of the health bar "booting up" to full health, during the time the enemy is unable to be attacked. Then, the health bar just updates its position to follow where the enemy goes. When the health bar reaches the last image in its animation (0 health), then it tells HealthCounter that the enemy died.
 
-## Score Counter and Digit Classes
+## Score Counter and Digit Classes (score.py)
 Since each sprite can only have a single image (or at least that is what is the design norm in pygame), I needed a separate sprite for each of the digits displaying the score. However, I still wanted some central entity to control everything relating to the score. This is what lead me to create two classes: the ScoreCounter class, which stores/updates the score creates/updates each of the digits when the score changes, and the "Digit" class, which displays a particular digit of the score in the appropriate place. When the score is changed, the ScoreCounter class tells each of its Digit objects to update to their new digit.
 
-## Attacking: The Crosshair
+## Attacking: The Crosshair (crosshair.py)
 The Crosshair class creates the crosshair, which is the player's way to defend itself from the enemies. On a high level, it updates itself each frame to change its location to the location of the mouse pointer. The class has a method that is called by the game when the mouse is clicked, that checks for a collision between the crosshair and any enemies. It then damages any enemies that fit this requirement.
 
 The main difficulty in creating the crosshair was storing two locations: the location it appeared on the screen, and its location in the player-adjusted coordinates (which was needed to check for collisions with the enemy sprites). However, this was solved by just storing two attributes for the crosshairs location. A "rect" attribute, to store its location on the screen, and an "adjusted_rect" attribute, which stored its player-adjusted location. Here, the "rect" attribute is a PyGame specific way of storing information about the location/size of a sprite.
 
-## Powerups:
+## Powerups (potion.py)
 I really wanted to implement power ups in this game, and the way I ended up doing it was sometimes spawning a potion sprite (1/3 chance) in a defeated room before a new room is created. The Potion class looks at the world map dictionary and finds a location with the tile type "new_room". The potion then chooses a random type (either giving the player speed, allowing the player to do double damage, or making the crosshair bigger). Finally, the potion waits for the player to walk into the potion. When this happens, the potion applies its effect, disappears, and spawns the new room for the player to explore.
 
 Since this game was very difficult to survive very long, I made the choice for power ups to build on top of one another and never go away. In the future, I may change this.
 
-## The Leaderboard
+## The Leaderboard (main.py)
 I wanted scores to be saved across multiple playing sessions, so I allowed the game to access a CSV file that stores all the previous scores of the player. This was necessary because any variables within python are discarded as soon as the program ends- I needed a separate file to store the scores so that they could be accessed indefinitely. 
 
 ## Settings.py
