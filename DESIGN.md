@@ -88,4 +88,4 @@ Since this game was very difficult to survive very long, I made the choice for p
 I wanted scores to be saved across multiple playing sessions, so I allowed the game to access a CSV file that stores all the previous scores of the player. This was necessary because any variables within python are discarded as soon as the program ends- I needed a separate file to store the scores so that they could be accessed indefinitely. 
 
 ## Settings.py
-For things which may change in future iterations of the game (for example: the FPS, the player movement speed, the scaling fact for the graphics, etc.), I used a separate python file called "settings.py". This allows the values to be easily changed, so that you don't have to search in each of the files to find a particular value to change.
+For things which may change in future iterations of the game (for example: the FPS, the player movement speed, the scaling factor for the graphics, etc.), I used a separate python file called "settings.py". This allows the values to be easily changed, so that you don't have to search in each of the files to find a particular value to change.
