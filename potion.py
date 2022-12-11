@@ -28,6 +28,9 @@ class Potion(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image, TILE_DIM)  # We scale up the graphic to the right size
         self.rect = self.image.get_rect(center=self.pos_scaled)  # We create a rect so pygame knows where to draw it
 
+        self.powerup_sound = pygame.mixer.Sound(POWERUP_SFX_PATH)  # The sound played when the player gets the potion
+        self.powerup_sound.set_volume(POWERUP_SFX_VOLUME)  # Sets the appropriate volume
+
     def update(self):
         """
         This method is called by the game at every frame. It checks for collisions between the potion sprite and the
@@ -35,6 +38,7 @@ class Potion(pygame.sprite.Sprite):
         sprite from the game.
         """
         if self.player.rect.colliderect(self.rect):  # If the potion has collides with the player...
+            self.powerup_sound.play()  # Play the powerup sound
             if self.type == "double_damage":
                 self.cross_hair.image = pygame.image.load(CROSSHAIR_DOUBLE_GRAPHICS_PATH)
                 self.cross_hair.strength = 2  # Applies the "double damage" effect

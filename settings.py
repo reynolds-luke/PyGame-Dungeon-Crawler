@@ -45,6 +45,8 @@ DIGITS_FILE_PATH = "./graphics/digits/"
 TILES_GRAPHICS_PATH = "./graphics/tiles/"
 TILES_STARTING_GRAPHIC_PATH = "./graphics/tiles/floor.png"
 
+POTION_GRAPHICS_PATH = "./graphics/potions/"
+POTION_TYPES = ["double_damage", "larger_crosshair", "speed"]
 
 # SFX Settings
 SHOOT_SFX_PATH = "./sounds/attack_sfx.wav"
@@ -52,6 +54,9 @@ SHOOT_SFX_VOLUME = 0.2
 
 CHARACTER_HURT_SFX_PATH = "./sounds/damage_sfx.wav"
 CHARACTER_HURT_SFX_VOLUME = 1
+
+POWERUP_SFX_PATH = "sounds/powerup_sfx.wav"
+POWERUP_SFX_VOLUME = 0.5
 
 # Player Settings
 PLAYER_ANIMATION_SPEED = 0.15
@@ -72,7 +77,7 @@ DARK_SLIME_WALK_SPEED = 0.3 * SLIME_WALK_SPEED
 DARK_SLIME_HEALTH = 4
 DARK_SLIME_DAMAGE_COOLDOWN = 1
 
-# Enemy Settings
+# Enemy Waves
 WAVES = [{"slime_count": 1, "dark_slime_count": 0},
          {"slime_count": 0, "dark_slime_count": 1},
          {"slime_count": 2, "dark_slime_count": 1},
@@ -80,11 +85,6 @@ WAVES = [{"slime_count": 1, "dark_slime_count": 0},
          {"slime_count": 10, "dark_slime_count": 5},
          {"slime_count": 15, "dark_slime_count": 5},
          {"slime_count": 15, "dark_slime_count": 10}]
-
-
-# Potion Settings
-POTION_GRAPHICS_PATH = "./graphics/potions/"
-POTION_TYPES = ["double_damage", "larger_crosshair", "speed"]
 
 
 # Room Settings

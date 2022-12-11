@@ -20,8 +20,8 @@ class Crosshair(pygame.sprite.Sprite):
         self.half_width = screen_dim[0] // 2
         self.half_height = screen_dim[1] // 2
 
-        self.attack_sound = pygame.mixer.Sound(SHOOT_SFX_PATH)  # The game played when the player attacks
-        self.attack_sound.set_volume(0.2)  # Sets the appropriate volume
+        self.attack_sound = pygame.mixer.Sound(SHOOT_SFX_PATH)  # The sound played when the player attacks
+        self.attack_sound.set_volume(SHOOT_SFX_VOLUME)  # Sets the appropriate volume
 
         self.image = pygame.image.load(CROSSHAIR_GRAPHICS_PATH)  # Loads in the crosshair image
         self.image = pygame.transform.scale(self.image, CROSSHAIR_DIM)  # Scales up the image

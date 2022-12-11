@@ -4,28 +4,52 @@
 </p>
 
 
-## Required Packages
-This game is entirely written in python. I am using python 3.10.9 and things work well. Also make sure you have the following packages installed:
-- pygame 
-- random (is probably already installed by default)
-- sys (is probably already installed by default)
-
-To run the program, just get to the directory which contains main.py and run
-> python main.py
-
-The program should boot up as a new window.
-
 Demonstration video: [link]()
 
+
+## Required Packages
+Requirements:
+- Python 3.10.9
+- PyGame 2.1.2
+### Python Instillation
+First, you need to make sure that you have Python installed on your computer. These instructions will be for Windows as that is the type of computer that I have access to run tests on, but you can read [here](https://www.geeksforgeeks.org/download-and-install-python-3-latest-version/) for instructions on Python installation for other devices, as well as alternative instructions for the Windows installation. 
+
+To install Python 3.10.9 on Windows, first download the correct installer (dependent on your system) from [the official Python website](https://www.python.org/downloads/windows/). Then follow the prompts to install python on your computer.
+
+You can test if Python is installed correctly on Windows by running the command
+> python --version
+
+in the command prompt. You should see the response
+> Python 3.10.9
+
+## Pip Installation
+To install the PyGame package, we will use the pip installer. This is a common installer for installing Python packages. As before, I will only detail instructions for the Windows installation, but you can find instructions for other operating systems (as well as alternative instructions for the Windows installation) [here](https://www.geeksforgeeks.org/download-and-install-pip-latest-version/).
+
+To install pip on Windows, first download the [get-pip.py file](https://bootstrap.pypa.io/get-pip.py) and store it in the same directory as where Python is installed. Then in the command line, change the directory until you are in the same folder as the get-pip.py file is located. Then, in the command line, enter the prompt
+> python get-pip.py
+
+Which executes the get-pip.py file. After this, pip will be installed on your computer.
+
+## PyGame Installation
+With pip in place, it is easy to install PyGame. In the command prompt, simply run the command 
+> pip install pygame
+
+To check to make sure pygame is installed correctly, run the following command in the command prompt:
+> pip show pygame
+
+The response should give a detailed summary of the PyGame package you have installed. In particular, you should see the line
+> Version: 2.1.2
+
+neat the top of the response.
+
 ## Resources used
-- [sound effects](https://opengameart.org/content/512-sound-effects-8-bit-style)
+- Free [sound effects](https://opengameart.org/content/512-sound-effects-8-bit-style) by user SubspaceAudio [Juhani Junkala](https://juhanijunkala.com/)
 
 - All art by me using [Piskel](https://www.piskelapp.com/) free pixel art app
 
-- [code for player movement/collisions, a camera that follows the player, and image loader help function](https://www.youtube.com/watch?v=cwWi05Icpw0)
-
-- [code for working with CSV files](https://www.geeksforgeeks.org/working-csv-files-python/)
- - [code for getting keyboard input in PyGame, used for the leaderboard](https://stackoverflow.com/questions/14111381/how-to-get-text-input-from-user-in-pygame)
+- I learned PyGame by following the YouTuber [Clear Code's](https://www.youtube.com/@ClearCode) excellent tutorials. In particular, I used the code for collisions, importing folders, and player-following-camera from their [Zelda-Style Game Tutorial](https://www.youtube.com/watch?v=cwWi05Icpw0) and got the base code for the crosshair sprite from [a video in their PyGame Fundamentals series.](https://www.youtube.com/watch?v=hDu8mcAlY4E&list=PL8ui5HK3oSiHnIdi0XIAVXHAeulNmBrLy&index=2)
+- I found GeeksForGeeks [page on working with CSV files in Python](https://www.geeksforgeeks.org/working-csv-files-python/) to be extremely helpful for implementing a leaderboard that interacted with a CSV file.
+- Finally, I note that I used some code from [this stack overflow answer](https://stackoverflow.com/questions/14111381/how-to-get-text-input-from-user-in-pygame) as a base to implement a screen that allows the user to type in their name to the screen using PyGame.
 
 ## Design
 

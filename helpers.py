@@ -24,12 +24,12 @@ def generate_room():
     """
     room_type = random.randint(0, 1)  # We create a random room type: either rectangular or circular
     if room_type == 0:  # Case of creating a rectangular room
-        dim = [random.randint(10, 15), random.randint(10, 15)]  # We initialize the random dimensions of the room
+        dim = [random.randint(15, 25), random.randint(15, 25)]  # We initialize the random dimensions of the room
         room = create_rect_room(dim=dim, wall_name="wall", floor_name="new_floor")  # We create the room
         room[(0, 0)] = "activation"  # We add an activation tile at the center of the room
         return room
     elif room_type == 1:  # Case of creating a circular room
-        radius = random.randint(5, 10)  # Chooses a random radius
+        radius = random.randint(10, 15)  # Chooses a random radius
         room = generate_circular_room(radius=radius, wall_name="wall", floor_name="new_floor")  # We create the room
         room[(0, 0)] = "activation"  # We add an activation tile at the center of the room
         return room
