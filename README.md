@@ -1,4 +1,4 @@
-# Pygame Dungeon Crawler
+# PyGame Dungeon Crawler
 <p align="center">
     <img width="1000" src="https://github.com/luk27182/PyGame-Dungeon-Crawler/blob/main/Game_Preview.gif" alt="Gameplay Preview">
 </p>
