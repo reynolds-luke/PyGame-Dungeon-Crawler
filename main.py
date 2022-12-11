@@ -90,7 +90,7 @@ class Game:
                 self.enemies_remaining = -1  # A value of -1 here means that a new room is already created (see docs)
 
                 create_potion = random.randint(1, 3)  # Gives a 1 in 3 chance of creating a potion
-                if create_potion != -1:
+                if create_potion == 1:
                     # Creates a potion object. A new room is created when the potion is drunk.
                     Potion(groups=[self.foreground_sprites], world=self.world, player=self.player,
                            cross_hair=self.cross_hair)
