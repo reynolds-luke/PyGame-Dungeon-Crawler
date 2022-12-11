@@ -83,7 +83,6 @@ POTION_TYPES = ["double_damage", "larger_crosshair", "speed"]
 
 
 # Room Settings
-STARTING_ROOM_DIM = [7,5]
 OBSTACLE_TILES = ["wall", "gate"]
 
 

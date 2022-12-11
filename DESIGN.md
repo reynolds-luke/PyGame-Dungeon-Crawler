@@ -1,6 +1,9 @@
 # Design
 This file is a technical discussion some of the more interesting parts of how my project was implemented.
 
+## General file structure
+I split my project into a bunch of shorter python files (each around 50-100 lines) instead of having one enormous pythong file. I did this for two reasons. For one, it made it much easier to find things in the code. To find the code where I defined the "character" class, I just went to that file. For another, it is in general good practice to do this because it allows different people to work on different parts of the code at the same time without interfering which one anothers' python files. Although I did this project on my own, I tried to stick to good general principles.
+
 ## Map Creation
 The map creation was perhaps the most difficult part of this project to implement. I'm still not entirely happy with in, but what I have now works well enough for basic gameplay.
 
@@ -87,4 +90,7 @@ At the end of initialization, the game calls its own "run" method. This method i
 After the play dies, the game calls its "update_leaderboard" method, which prompts the user to input their name for adding their score for the leaderboard. To make things display well later, I limited the user's input to 8 alphanumeric characters. The user's name and score are then added to the CSV file "leaderboard.csv." Following this, the draw_leaderboard method is called, which writes out the top 10 highscores by reading and then sorting the "leaderboard.csv" file. Then the game waits for the user to press the "R" button, which reinitializes the game and allows gameplay to continue.
 
 ## The Leaderboard
-I wanted scores to be saves across multiple playing sessions, so I allowed the game to access a CSV file that stores all of the previous scores of the player. This was necessary becuase any variables within python are discarded as soon as the program ends- I needed a separate file to store the scores so that they could be accessed indefinitely. 
+I wanted scores to be sa ves across multiple playing sessions, so I allowed the game to access a CSV file that stores all the previous scores of the player. This was necessary because any variables within python are discarded as soon as the program ends- I needed a separate file to store the scores so that they could be accessed indefinitely. 
+
+## Settings.py
+For things which may change in future iterations of the game (for example: the FPS, the player movement speed, the scaling fact for the graphics, etc.), I used a separate python file called "settings.py". This allows the values to be easily changed, so that you don't have to search in each of the files to find a particular value to change.
