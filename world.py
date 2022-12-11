@@ -1,5 +1,4 @@
 import pygame, random
-from helpers import *
 from settings import *
 from tile import *
 
@@ -13,8 +12,65 @@ class World:
 
     def __init__(self, game):
         self.game = game  # We need to access objects from the game quite a bit, so we just bring in the whole game.
-        self.map = create_rect_room(dim=STARTING_ROOM_DIM, wall_name="wall", floor_name="floor")  # Initialized map
+        self.map = self.generate_rect_room(dim=STARTING_ROOM_DIM, wall_name="wall",
+                                           floor_name="floor")  # Initialized map
         self.generated_tiles = {pos: False for pos in self.map}  # Of format (tile_x, tile-y): is_already_created
+
+    def generate_room(self):
+        """
+        This method creates a room dictionary, centered at (0,0)
+        """
+        room_type = random.randint(0, 1)  # We create a random room type: either rectangular or circular
+        if room_type == 0:  # Case of creating a rectangular room
+            dim = [random.randint(10, 15), random.randint(10, 15)]  # We initialize the random dimensions of the room
+            room = self.generate_rect_room(dim=dim, wall_name="wall", floor_name="new_floor")  # We create the room
+            room[(0, 0)] = "activation"  # We add an activation tile at the center of the room
+            return room
+        elif room_type == 1:  # Case of creating a circular room
+            radius = random.randint(5, 10)  # Chooses a random radius
+            room = self.generate_circular_room(radius=radius, wall_name="wall", floor_name="new_floor")  # We create the room
+            room[(0, 0)] = "activation"  # We add an activation tile at the center of the room
+            return room
+
+    @staticmethod
+    def generate_circular_room(radius, wall_name, floor_name):
+        """
+        This method creates a circular room dictionary, given a radius
+        """
+        room = dict()
+
+        dim = [2 * radius, 2 * radius]
+        dim[0] += 2
+        dim[1] += 2
+        for row in range(-floor(dim[0] / 2), ceil(dim[0] / 2)):  # This iterates over the height, centering at zero
+            for col in range(-floor(dim[1] / 2), ceil(dim[1] / 2)):  # This iterates over the width, centering at zero
+                if row ** 2 + col ** 2 < radius ** 2:  # If fully within the radius, we add a floor
+                    room[(row, col)] = floor_name
+                # If on the edge of being within the circle, we add a wall
+                elif (abs(row) - 1) ** 2 + col ** 2 < radius ** 2 or row ** 2 + (abs(col) - 1) ** 2 < radius ** 2:
+                    room[(row, col)] = wall_name
+        return room
+
+    @staticmethod
+    def generate_rect_room(dim, wall_name, floor_name):
+        """
+        This method creates a rectangular room dictionary, given a dimension of the form (weight, height)
+        """
+        world = dict()  # initialize the world dictionary
+
+        # We add 2 to the dimensions to account for the walls
+        dim[0] += 2
+        dim[1] += 2
+
+        for row in range(-floor(dim[0] / 2), ceil(dim[0] / 2)):  # This iterates over the height, centering at zero
+            for col in range(-floor(dim[1] / 2), ceil(dim[1] / 2)):  # This iterates over the width, centering at zero
+                if row == -floor(dim[0] / 2) or row == ceil(dim[0] / 2) - 1 or col == -floor(dim[1] / 2) or col == ceil(
+                        dim[1] / 2) - 1:  # This conditional checks to see if we are on the edge of the room
+                    world[(row, col)] = wall_name
+                else:  # If we are not at the edge, we add a floor to the dictionary
+                    world[(row, col)] = floor_name
+
+        return world  # We return the dictionary
 
     def add_tiles(self):
         """
@@ -55,7 +111,7 @@ class World:
         Below is the code that actually creates the room.
         """
 
-        new_room = generate_room()  # First, we get a zero-centered room. See helpers.py
+        new_room = self.generate_room()  # First, we get a zero-centered room. See helpers.py
 
         # Next, we center the room on the player's location
         new_room = {(posx + playerx, posy + playery): new_room[(posx, posy)] for posx, posy in new_room}
