@@ -48,8 +48,8 @@ class World:
 
         # We start creating the path where the player is, so we get the player's current position. We divide by the
         # TILE_DIM so that we get the player's true, unadjusted position.
-        playerx = self.game.player.rect.centerx // TILE_DIM[0]
-        playery = self.game.player.rect.centery // TILE_DIM[1]
+        playerx = ceil(self.game.player.rect.centerx / TILE_DIM[0])
+        playery = ceil(self.game.player.rect.centery / TILE_DIM[1])
 
         """
         Below is the code that actually creates the room.

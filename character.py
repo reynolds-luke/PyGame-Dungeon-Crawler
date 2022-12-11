@@ -27,7 +27,7 @@ class Character(pygame.sprite.Sprite):
         self.graphics_scaling = graphics_scaling  # We scale up the images, because originally they are small.
         self.hitbox_scaling = hitbox_scaling  # The sprites' hit boxes are all smaller than the actual image
         self.status = status  # This stores when the player is idle, but in the future it may have other roles as well
-        self.hurt_sound = pygame.mixer.Sound("./sounds/damage_sfx.wav")  # plays when the character is hurt
+        self.hurt_sound = pygame.mixer.Sound(CHARACTER_HURT_SFX_PATH)  # plays when the character is hurt
         self.hurt_sound.set_volume(CHARACTER_HURT_VOLUME) # Sets the appropriate volume
         self.import_graphics()  # Calls the method to import all the animations int other dictionary self.animations
 

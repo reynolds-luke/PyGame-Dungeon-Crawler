@@ -36,9 +36,10 @@ class Potion(pygame.sprite.Sprite):
         """
         if self.player.rect.colliderect(self.rect):  # If the potion has collides with the player...
             if self.type == "double_damage":
+                self.cross_hair.image = pygame.image.load(CROSSHAIR_DOUBLE_GRAPHICS_PATH)
                 self.cross_hair.strength = 2  # Applies the "double damage" effect
             if self.type == "larger_crosshair":
-                self.cross_hair.scale_powerup()  # Applies the "larger crosshair" effect
+                self.cross_hair.graphics_scale = CROSSHAIR_ENLARGED_DIM # Applies the "larger crosshair" effect
             if self.type == "speed":
                 self.player.speed *= 1.5  # Applies the "speed" effect. Is cumulative
 

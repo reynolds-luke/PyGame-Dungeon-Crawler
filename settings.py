@@ -15,17 +15,11 @@ PLAYER_STATS_BAR_DIM = (PLAYER_STATS_BAR_SIZE * STATS_BAR_RATIO[0], PLAYER_STATS
 ENEMY_STATS_BAR_SIZE = 20
 ENEMY_STATS_BAR_DIM = (ENEMY_STATS_BAR_SIZE * STATS_BAR_RATIO[0], ENEMY_STATS_BAR_SIZE * STATS_BAR_RATIO[1])
 
-CROSS_HAIR_DIM = (50, 50)
-CROSS_HAIR_ENLARGED_DIM = (100, 100)
-
 SCORE_DIGIT_RATIO = [24, 42]
 SCORE_DIGITS_SIZE = 1
 SCORE_DIGITS_DIM = [SCORE_DIGITS_SIZE*SCORE_DIGIT_RATIO[0], SCORE_DIGITS_SIZE*SCORE_DIGIT_RATIO[1]]
 
 LEADERBOARD_FILE_NAME = "leaderboard.csv"
-
-SHOOT_VOLUME = 0.2
-CHARACTER_HURT_VOLUME = 1
 
 # Graphics Settings
 PLAYER_ANIMATION_NAMES = ["up", "down", "left", "right", "up_idle", "down_idle", "left_idle", "right_idle"]
@@ -38,7 +32,10 @@ DARK_SLIME_ANIMATION_NAMES = ["dark_slime_animation"]
 DARK_SLIME_GRAPHICS_PATH = "./graphics/dark_slime/"
 DARK_SLIME_STARTING_GRAPHIC_PATH = "./graphics/dark_slime/dark_slime_animation/sprite_0.png"
 
-CROSS_HAIR_GRAPHICS_PATH = "./graphics/aim/aim.png"
+CROSSHAIR_GRAPHICS_PATH = "graphics/crosshair/aim.png"
+CROSSHAIR_DOUBLE_GRAPHICS_PATH = "graphics/crosshair/aim_double.png"
+CROSSHAIR_DIM = (50, 50)
+CROSSHAIR_ENLARGED_DIM = (100, 100)
 
 HEALTH_BAR_GRAPHICS_PATH = "./graphics/health_bar/"
 HEALTH_BAR_STARTING_GRAPHIC_PATH = "./graphics/health_bar/sprite_0.png"
@@ -47,6 +44,14 @@ DIGITS_FILE_PATH = "./graphics/digits/"
 
 TILES_GRAPHICS_PATH = "./graphics/tiles/"
 TILES_STARTING_GRAPHIC_PATH = "./graphics/tiles/floor.png"
+
+
+# SFX Settings
+SHOOT_SFX_PATH = "./sounds/attack_sfx.wav"
+SHOOT_SFX_VOLUME = 0.2
+
+CHARACTER_HURT_SFX_PATH = "./sounds/damage_sfx.wav"
+CHARACTER_HURT_SFX_VOLUME = 1
 
 # Player Settings
 PLAYER_ANIMATION_SPEED = 0.15
@@ -88,3 +93,4 @@ OBSTACLE_TILES = ["wall", "gate"]
 
 # Enemy Spawn info
 MIN_DIST = 8
+STARTING_ROOM_DIM = [7,5]

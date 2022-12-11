@@ -20,14 +20,15 @@ class Crosshair(pygame.sprite.Sprite):
         self.half_width = screen_dim[0] // 2
         self.half_height = screen_dim[1] // 2
 
-        self.attack_sound = pygame.mixer.Sound("./sounds/attack_sfx.wav")  # The game played when the player attacks
+        self.attack_sound = pygame.mixer.Sound()  # The game played when the player attacks
         self.attack_sound.set_volume(0.2)  # Sets the appropriate volume
 
-        self.image = pygame.image.load(CROSS_HAIR_GRAPHICS_PATH)  # Loads in the crosshair image
-        self.image = pygame.transform.scale(self.image, CROSS_HAIR_DIM)  # Scales up the image
+        self.image = pygame.image.load(CROSSHAIR_GRAPHICS_PATH)  # Loads in the crosshair image
+        self.image = pygame.transform.scale(self.image, CROSSHAIR_DIM)  # Scales up the image
         self.rect = self.image.get_rect()  # Pygame requires a "rect" object to know where to draw the sprite
         self.adjusted_rect = self.rect  # As explained earlier, we also need to track the adjusted coordinates
         self.strength = 1  # The "strength of" (i.e. damage associated with) the player attack
+        self.graphics_scale = CROSSHAIR_DIM # How big we draw the crosshair
 
         self.enemy_sprites = enemy_sprites  # The group containing all the enemy sprites
 
@@ -41,20 +42,12 @@ class Crosshair(pygame.sprite.Sprite):
             if sprite.rect.colliderect(self.adjusted_rect):  # If we hit an enemy sprite (using adjusted coordinate!)...
                 sprite.take_damage(self.strength)  # ...We call the enemy's "take_damage" method
 
-    def scale_powerup(self):
-        """
-        This method is called by a potion when the player picks up a "larger_crosshair" powerup.
-        :return:
-        """
-        self.image = pygame.transform.scale(self.image, CROSS_HAIR_ENLARGED_DIM)  # We scale the image
-        self.rect = self.image.get_rect()  # We recalculate the corresponding rect scaling
-        self.adjusted_rect = self.rect.copy()  # We recalculate the adjusted_rect scaling
-
     def update(self):
         """
         This method is called every frame, and it updates the crosshair's location (based on the mouse location) as well
         as the size of the crosshair (which can change with powerups.)
         """
+        self.image = pygame.transform.scale(self.image, self.graphics_scale)
         self.rect.center = pygame.mouse.get_pos()  # We recenter the crosshair on the mouse location
 
         # The following lines adjust the adjusted_rect so that it is in the correct location in the adjusted coordinate

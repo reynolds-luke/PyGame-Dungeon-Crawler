@@ -23,14 +23,11 @@ class Game:
         # Initialize Pygame
         pygame.init()
         pygame.font.init()
-        self.my_font = pygame.font.SysFont(TEXT_FONT, TEXT_SIZE)
-        # self.screen = pygame.display.set_mode(SCREEN_DIM, pygame.FULLSCREEN)
-        self.screen = pygame.display.set_mode((700, 700))
 
         # Next, we set up the basic pygame settings we will use
         self.my_font = pygame.font.SysFont(TEXT_FONT, TEXT_SIZE)  # The font used for the leaderboard
-        # self.screen = pygame.display.set_mode(SCREEN_DIM, pygame.FULLSCREEN)  # The display of the game
-        self.screen = pygame.display.set_mode((700, 700))  # A smaller screen used in development
+        self.screen = pygame.display.set_mode(SCREEN_DIM, pygame.FULLSCREEN)  # The display of the game
+        #self.screen = pygame.display.set_mode((700, 700))  # A smaller screen used in development
         self.screen_dim = pygame.display.get_surface().get_size()  # Gives the screen dims, if its not full screen
         self.clock = pygame.time.Clock()  # The clock used to increase the frame number
         pygame.mouse.set_visible(False)  # Hides the mouse so it doesn't cover up the crosshair
@@ -93,7 +90,7 @@ class Game:
                 self.enemies_remaining = -1  # A value of -1 here means that a new room is already created (see docs)
 
                 create_potion = random.randint(1, 3)  # Gives a 1 in 3 chance of creating a potion
-                if create_potion == 1:
+                if create_potion != -1:
                     # Creates a potion object. A new room is created when the potion is drunk.
                     Potion(groups=[self.foreground_sprites], world=self.world, player=self.player,
                            cross_hair=self.cross_hair)
